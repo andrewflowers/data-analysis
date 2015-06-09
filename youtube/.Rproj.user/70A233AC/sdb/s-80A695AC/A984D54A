@@ -1,0 +1,18 @@
+{
+    "contents" : "setwd(\"~/youtube\")\n\nrequire(dplyr)\nrequire(ggplot2)\nrequire(readr)\n\nchannels <- read_csv(\"_0_Channels_By_Category.csv\")\nfirst_video <- read_csv(\"_a_First_Video.csv\")\nvpm <- read_csv(\"_b_Videos_Per_Month.csv\")\n",
+    "created" : 1433862918039.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "45699228",
+    "id" : "A984D54A",
+    "lastKnownWriteTime" : 1433862924,
+    "path" : "~/youtube/youtube.R",
+    "project_path" : "youtube.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

@@ -1,0 +1,25 @@
+{
+    "contents" : "",
+    "created" : 1433863517028.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "CFC85F24",
+    "lastKnownWriteTime" : 1433862924,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "ccky3txhr8",
+        "caption" : "vpm",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=vpm&cache_key=ccky3txhr8",
+        "displayedObservations" : 60133,
+        "environment" : "",
+        "object" : "vpm",
+        "totalObservations" : 60133,
+        "variables" : 4
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}

@@ -1,0 +1,25 @@
+{
+    "contents" : "",
+    "created" : 1433863021153.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "99AC4230",
+    "lastKnownWriteTime" : 1,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "r9xox52uyr",
+        "caption" : "channels",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=channels&cache_key=r9xox52uyr",
+        "displayedObservations" : 1600,
+        "environment" : "",
+        "object" : "channels",
+        "totalObservations" : 1600,
+        "variables" : 4
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}
