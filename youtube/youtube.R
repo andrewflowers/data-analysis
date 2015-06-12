@@ -41,7 +41,7 @@ totals <- all_likes %>% mutate(channel=channels[match(external_id, channels$exte
   mutate(sub_per_hour=total_sub/total_hours,
          sub_per_view=total_sub/total_views,
          views_per_vid=total_views/total_videos,
-         hours_per_vid=total_hours/total_videos,
+         hours_per_vid=total_hours/total_videos,gi
          likes_per_hour=likes/total_hours)
 
 # Create tidy by month data set
