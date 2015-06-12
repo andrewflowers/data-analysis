@@ -22,10 +22,22 @@ crime <- read_csv("BPD_Part_1_Victim_Based_Crime_Data.csv")
 
 crime$CrimeDate <- as.Date(crime$CrimeDate, "%m/%d/%y")
 
-crime_byDay <- crime %>% group_by(CrimeDate) %>% summarize(total_crimes=n())
+crime_byDay <- crime %>% group_by(CrimeDate) %>% summarize(total_crimes=n()) %>% arrange(desc(CrimeDate))
 
 ggplot(data=crime_byDay, aes(x=CrimeDate, y=total_crimes))+geom_line()+geom_smooth()+
   ggtitle("Total Crimes (source: Baltimore Police Department) from 1/1/2010 through 6/6/2015")
+
+crime_byDay <- crime_byDay %>% 
+  mutate(year_ago = lead(total_crimes, 365), year_change = (total_crimes - year_ago)/year_ago*100) %>% 
+  filter(CrimeDate>="2014-01-01")
+
+ggplot(data=crime_byDay, aes(x=CrimeDate, y=year_change))+geom_line()+geom_smooth()+
+  ggtitle("Crime: Year-over-year % Change \n(source: Baltimore Police Department) from 1/1/2014 through 6/6/2015")
+
+
+
+
+
 
 
 
