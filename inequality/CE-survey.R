@@ -9,6 +9,7 @@ require(ggplot2)
 require(reshape2)
 require(cwhmisc)
 require(xlsx)
+require(survey)
 
 setwd("~/data-analysis/inequality")
 
@@ -23,9 +24,21 @@ load("./microdata/2013/intrvw/fmli133.rda")
 load("./microdata/2013/intrvw/fmli134.rda")
 load("./microdata/2013/intrvw/fmli141.rda")
 
+# Load UCC codes for 2013 data
+uccCodes <- read_csv("ucc_codes_2013.csv")
+
+# Create survey attribute
+# TK
+
 # Extract data on all 2013 CU's -- newid, inclass2, etc.
 vars <- c("newid", "inclass2", "finlwt21")
 consumers <- rbind(fmli131x[,vars], fmli132[,vars], fmli133[,vars], fmli134[,vars], fmli141[,vars])
+
+consumersByInc <- consumers %>%
+  mutate(incTercile=ifelse(inclass2<=2, "bottom", ifelse(inclass2<=4 & inclass2>2, "middle", ifelse(inclass2<7 & inclass2>4, "top", "none")))) %>% 
+  group_by(incTercile) %>% 
+  summarize(n=sum(finlwt21)) %>% 
+  filter(incTercile!="none")
 
 # APA (appliances) expn file
 items <- c(100, 120, 140, 160, 190, 200)
@@ -40,10 +53,15 @@ appPurchases <- apa13 %>%
   filter(majapply %in% items, gftc_maj==1, incTercile!="none") %>% 
   select(newid, majapply, weight, majpurx, incTercile) 
 
-appReport <- appPurchases %>% 
+appPrice <- appPurchases %>% 
   dcast(formula=majapply~incTercile, value.var="majpurx", fun.aggregate=median, fill=NaN) %>%
   # NOTE: this median calculation is UNWEIGHTED
   cbind(itemDesc) %>% select(item, 2:4)
+
+appFreq <- appPurchases %>% 
+  dcast(formula=majapply~incTercile,  value.var="weight", fun.aggregate=sum, fill=NaN) %>%
+  cbind(itemDesc) %>% select(item, 2:4)
+appFreq[,2:4] <- (appFreq[,2:4]/t(consumersByInc$n))*100
 
 # FRA (furniture) expn file
 items <- c(100, 101, 102, 103, 120, 141, 171, 190, 191, 192, 193, 214, 215)
@@ -62,16 +80,22 @@ furPurchases <- fra13 %>%
   filter(furnpury %in% items, furngftc==1, incTercile!="none") %>% 
   select(newid, furnpury, weight, furnpurx, incTercile) 
 
-furReport <- furPurchases %>% 
+furPrice <- furPurchases %>% 
   dcast(formula=furnpury~incTercile, value.var="furnpurx", fun.aggregate=median, fill=NaN) %>%
   # NOTE: this median calculation is UNWEIGHTED
   cbind(itemDesc) %>% select(item, 2:4)
 
+furFreq <- furPurchases %>% 
+  dcast(formula=furnpury~incTercile,  value.var="weight", fun.aggregate=sum, fill=NaN) %>%
+  cbind(itemDesc) %>% select(item, 2:4)
+furFreq[,2:4] <- (furFreq[,2:4]/t(consumersByInc$n))*100
 
-finalReport <- rbind(appReport, furReport)
-write.xlsx(finalReport, "kitchen_and_living_room.xlsx", sheetName="report")
+itemPrices <- rbind(appPrice, furPrice)
+itemFreq <- rbind(appFreq, furFreq)
 
-
-
-
-
+wb <- createWorkbook()
+median_price <- createSheet(wb, sheetName="median_price")
+addDataFrame(itemPrices, median_price)
+pct_purchasing <- createSheet(wb, sheetName="pct_purchasing")
+addDataFrame(itemFreq, pct_purchasing)
+saveWorkbook(wb, "new_kitchen_and_living_room.xlsx")
