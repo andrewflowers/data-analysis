@@ -16,47 +16,44 @@ fights <- tbl_df(read_csv("latest_data.csv"))
 names(fights) <- tolower(names(fights))
 fights$start_dt <- dmy(fights$start_dt)
 fights$year <- year(fights$start_dt)
-fights <- fights %>% mutate(femaleFight=ifelse((fighter1_gender=="F" | fighter2_gender=="F"), TRUE, FALSE)) %>% # Code female as fights if just one fighter is female
-      mutate(ending_time=hms(ending_time))
+fights <- fights %>% mutate(femaleFight=ifelse((fighter1_gender=="F" | fighter2_gender=="F"), TRUE, FALSE)) %>% 
+  filter(nchar(ending_time) %in% c(4, 5, 8), rounds_scheduled<=5)
 
-fights <- fights %>% 
-
-fights$fight_duration  <- NA
+fights$ending_time2 <- NA
 
 for (i in 1:nrow(fights)){
-  if(nchar(fights$ending_time[i])==3 | nchar(fights$ending_time[i])==4){
-    fights$fight_duration[i] <- (as.numeric(strsplit(fights$ending_time[i], ":")[1])*60)+as.numeric(strsplit(fights$ending_time[i], ":")[2])
-  } else if (nchar(fights$ending_time[i])==8){
-    fights$fight_duration[i] <- (as.numeric(strsplit(fights$ending_time[i], ":")[2])*60)+as.numeric(strsplit(fights$ending_time[i], ":")[3])
-  }  
-}
-
-
-
-
-fights$total_time2 <- sapply(strsplit(fights$total_time,":"),
-                             function(x) {
-                               x <- as.numeric(x)
-                               (x[1]*60)+x[2]
-                             }
-)
-
-((fights$rounds_fought-1)*(5*60))+strsplit(fights$ending_time, ":"),
-  function(x) {
-    x <- as.numeric(x)
-    (x[1]*60)+x[2]
+  
+  if(nchar(fights$ending_time[i]) == 4 | nchar(fights$ending_time[i]) == 5){
+    fights$ending_time2[i] <- (as.numeric(unlist(strsplit(fights$ending_time[i], ":"))[1])*60)+as.numeric(unlist(strsplit(fights$ending_time[i], ":"))[2])
+  } else if(nchar(fights$ending_time[i]) == 8){
+    fights$ending_time2[i] <- (as.numeric(unlist(strsplit(fights$ending_time[i], ":"))[2])*60)+as.numeric(unlist(strsplit(fights$ending_time[i], ":"))[3])
   }
-)
+}
+fights <- fights %>% filter(ending_time2<=300)
 
+fights$fight_duration  <- as.numeric(fights$ending_time2)+((fights$rounds_fought-1)*(5*60))
 
 # Female records
 femRecs <- fights %>% 
   filter(femaleFight==TRUE) %>% 
-  group_by(fight_winner) %>% summarize(n=n(), fightTime=median(total_time2, na.rm=TRUE)) %>% arrange(desc(n))
+  group_by(fight_winner) %>% summarize(n=n(), fightTime=mean(fight_duration, na.rm=TRUE)) %>% arrange(fightTime)
+
+ggplot(data=femRecs, aes(x=n, y=fightTime))+geom_point()
+
 
 # Rousey fights
 ronda <- "Ronda Rousey"
 rouseyFights <- fights %>% filter(fighter1==ronda | fighter2==ronda)
+
+# All fighters
+
+fightTiming <- fights %>% 
+  group_by(fight_winner) %>% summarize(wins=n(), fightTime=mean(fight_duration, na.rm=TRUE)) %>% 
+  filter(wins>1) %>% arrange(fightTime)
+
+
+
+############# Submission Analysis #############
 
 # Clean submission data
 re <- "\\(([^()]+)\\)"
@@ -97,3 +94,27 @@ armbarByYear <- fights %>% filter(fights$femaleFight==TRUE, submission=="Armbar"
 # Timing of fight: shorter or longer
 # FightMetric stats: 
 
+
+
+#### SCRAP HEAP ####
+
+#          (as.numeric(unlist(strsplit(ending_time, ":"))[1])*60)+as.numeric(unlist(strsplit(ending_time, ":"))[2]),
+#          ifelse(nchar(ending_time)==8, 
+#                 (as.numeric(unlist(strsplit(ending_time, ":"))[2])*60)+as.numeric(unlist(strsplit(ending_time, ":"))[3]),
+#                 ending_time)))
+#   
+#   
+# }
+#   mutate(ending_time=ifelse(nchar(ending_time)==4 | nchar(ending_time)==5, 
+#                             (as.numeric(unlist(strsplit(ending_time, ":"))[1])*60)+as.numeric(unlist(strsplit(ending_time, ":"))[2]),
+#                             ifelse(nchar(ending_time)==8, 
+#                                    (as.numeric(unlist(strsplit(ending_time, ":"))[2])*60)+as.numeric(unlist(strsplit(ending_time, ":"))[3]),
+#                                    ending_time)))
+#                         
+#                                 
+#                                 
+#                                 
+#                                 
+# #         
+# #          ifelse(nchar(ending_time)==8, hms(ending_time),
+# #         ending_time))) %>% filter(nchar(ending_time)>0 & nchar(ending_time)<3, rounds_fought> 0)
