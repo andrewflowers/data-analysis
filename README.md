@@ -11,3 +11,4 @@ Folder | Description
 `inequality` | Inequality jumbo analysis with Ben C. and Micah
 `percentmatch` | Poll fraud data anlysis with Carl
 `nba-free-agency` | NBA free agency spreadsheets from Neil
+`ufc` | Ronda Rousey story data, code, etc.
