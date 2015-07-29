@@ -14,7 +14,7 @@ source("~/data-analysis/Five38Thm.R")
 
 setwd("~/data-analysis/ufc/")
 
-fights <- tbl_df(read_csv("latest_data.csv"))
+fights <- tbl_df(read_csv("latest_data2.csv"))
 names(fights) <- tolower(names(fights))
 fights$start_dt <- dmy(fights$start_dt)
 fights$year <- year(fights$start_dt)
@@ -64,7 +64,7 @@ allFighters[is.na(allFighters)] <- 0
 allFighters$winPct <- (allFighters$wins/(allFighters$wins+allFighters$losses))*100  
 
 # Add average time in wins/losses
-fightTiming_wins <- fights %>% group_by(fight_winner) %>% summarize(fightTime=mean(fight_duration, na.rm=TRUE), fighth2=(1-mean(fight_duration2, na.rm=TRUE)))
+fightTiming_wins <- fights %>% group_by(fight_winner) %>% summarize(fightTime=mean(fight_duration, na.rm=TRUE), fightTime2=(1-mean(fight_duration2, na.rm=TRUE)))
 fightTiming_losses <- fights %>% group_by(fight_loser) %>% summarize(fightTime=mean(fight_duration, na.rm=TRUE), fightTime2=(1-mean(fight_duration2, na.rm=TRUE)))
 
 allFighters$avgWinTime <- fightTiming_wins[match(allFighters$fighter, fightTiming_wins$fight_winner),]$fightTime
@@ -87,15 +87,15 @@ ggplot(data=allFighters, aes(x=avgWinTime, y=wins))+geom_point(color="blue")
 
 g <- ggplot(data=subset(allFighters, wins>=3), aes(x=timeScores, y=winPct))+
   geom_point(aes(size=wins), color="blue") + geom_point(data=subset(allFighters, fighter==ronda), color="red")+
-  xlab("Fight Speed Score [Weighted] \n(average fight time remaining in wins - average fight time elapsed in losses)")+
-  ylab("Win Percentage")+ggtitle("Ronda Rousey Wins A Lot -- And Quickly\n (All MMA fighters with at least 3 wins)")+Five38Thm
+  xlab("Fight Speed Score [Weighted] \n(average % fight time remaining in wins - average % fight time remaining in losses )")+
+  ylab("Win Percentage")+ggtitle("Ronda Rousey Wins A Lot -- And Quickly\n (All MMA fighters with at least 3 wins)") #+Five38Thm
 g
 ggsave(g, filename = "rousey_plot.png")
 
 # Adv stats
 
 fighterAdvStats <- advStats %>% 
-  filter(femaleFight==TRUE) %>% 
+  #filter(femaleFight==TRUE) %>% 
   group_by(fight_winner) %>% 
   summarize(wins=n(),
             strikePct=mean(strike_accuracy, na.rm=TRUE),
@@ -197,9 +197,48 @@ ggplot(data=subset(byYear2, year>1997), aes(x=year, y=value, color=variable))+ge
 
 
 # Submission types over time
+subFights <- fights %>% filter(result=="Submission") %>% 
+  mutate(submission=ifelse(submission=="Guillotine Choke", "Guillotine",
+                                              ifelse(submission=="", "Unknown", submission)))
 
-subTypesByYear <- fights %>% filter(result=="Submission") %>% 
-  mutate(submission) %>% 
+topSub <- subFights %>% group_by(submission) %>% summarise(n=n()) %>% top_n(10)
+
+subTypesByYear <- subFights %>% 
+  filter(submission %in% topSub$submission) %>% 
+  group_by(year, submission) %>% summarize(n=n())
   
+ggplot(data=subTypesByYear, aes(x=year, y=n, color=submission))+geom_line()
   
-  
+subTypesByYear2 <- dcast(subTypesByYear, formula=year~submission)
+subTypesByYear2$totalSub <- rowSums(subTypesByYear2[,2:11], na.rm=TRUE)
+subTypesByYear3 <- cbind(subTypesByYear2$year,(subTypesByYear2[,2:11]/subTypesByYear2[,12])*100)
+subTypesByYear3[is.na(subTypesByYear3)] <- 0
+names(subTypesByYear3)[1] <- 'year'
+subTypesPlot <- melt(subTypesByYear3, id="year")
+
+ggplot(data=subset(subTypesPlot, year>1997), aes(x=year, y=value, color=variable))+geom_line()+
+  ggtitle("Rousey's Favorite Submission (the Armbar) Is Becoming Less Effective")+ylab("Percent of Submissions")+
+  xlab("Year")
+
+# Fight time 
+menTime <- fights %>% filter(femaleFight==FALSE) %>% 
+    group_by(year) %>% summarize(avgTime=mean(fight_duration, na.rm=TRUE))
+
+femaleTime <- fights %>% filter(femaleFight==TRUE) %>% 
+  group_by(year) %>% summarize(avgTime=mean(fight_duration, na.rm=TRUE))
+
+fightTime <- merge(menTime, femaleTime, by="year")
+names(fightTime)[2:3] <- c("Men Fight Time", "Women Fight Time")
+fightTime2 <- melt(fightTime, id="year")
+ggplot(data=fightTime2, aes(x=year, y=value, color=variable))+geom_line()+
+  ggtitle("MMA Fights Are Getting Longer")+ylab("Average Fight Duraction (in seconds)")+xlab("Year")
+
+# Submission %
+
+
+ggplot(data=allFighters, aes(x=subWinPct, y=avgWinTime))+geom_point()+geom_smooth(method="lm")
+
+
+
+
+
