@@ -233,7 +233,7 @@ fightTime2 <- melt(fightTime, id="year")
 ggplot(data=fightTime2, aes(x=year, y=value, color=variable))+geom_line()+
   ggtitle("MMA Fights Are Getting Longer")+ylab("Average Fight Duraction (in seconds)")+xlab("Year")
 
-# Submission %
+# Submission 
 
 
 ggplot(data=allFighters, aes(x=subWinPct, y=avgWinTime))+geom_point()+geom_smooth(method="lm")
