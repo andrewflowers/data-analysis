@@ -77,7 +77,6 @@ allFighters[is.na(allFighters)] <- 0
 
 allFighters$timeScores <- (allFighters$avgWinPct*allFighters$winPct) - (allFighters$avgLossPct*(100-allFighters$winPct))
 
-
 # Ronda
 ronda <- "Ronda Rousey"
 rouseyFights <- fights %>% filter(fighter1==ronda | fighter2==ronda)
@@ -86,9 +85,9 @@ allFighters %>% filter(fighter==ronda)
 ggplot(data=allFighters, aes(x=avgWinTime, y=wins))+geom_point(color="blue")
 
 g <- ggplot(data=subset(allFighters, wins>=3), aes(x=timeScores, y=winPct))+
-  geom_point(aes(size=wins), color="blue") + geom_point(data=subset(allFighters, fighter==ronda), color="red")+
-  xlab("Fight Speed Score [Weighted] \n(average % fight time remaining in wins - average % fight time remaining in losses )")+
-  ylab("Win Percentage")+ggtitle("Ronda Rousey Wins A Lot -- And Quickly\n (All MMA fighters with at least 3 wins)") #+Five38Thm
+  geom_point(color="blue", aes(size=wins), alpha=0.4) + scale_size_area(max_size=9) + geom_point(data=subset(allFighters, fighter==ronda), color="red")+
+  xlab("Fight Speed Score [Weighted] \n(average % fight time remaining in wins - time remaining in losses )")+
+  ylab("Win Percentage")+ggtitle("Ronda Rousey Wins A Lot -- And Quickly\n (All MMA fighters with at least 3 wins)") +Five38Thm
 g
 ggsave(g, filename = "rousey_plot.png")
 
@@ -193,7 +192,7 @@ byYear2 <- byYear %>% select(year, dec_share, ko_tko_share, Submission_share, ot
 
 ggplot(data=subset(byYear2, year>1997), aes(x=year, y=value, color=variable))+geom_line()+xlab("Year")+
   ylab("Percent of fights")+ggtitle("Submissions are becoming more rare; KO's are Flat; Decisions are up")+
-  geom_smooth(method="lm", se=FALSE)
+  geom_smooth(se=FALSE)
 
 
 # Submission types over time
@@ -234,11 +233,10 @@ ggplot(data=fightTime2, aes(x=year, y=value, color=variable))+geom_line()+
   ggtitle("MMA Fights Are Getting Longer")+ylab("Average Fight Duraction (in seconds)")+xlab("Year")
 
 # Submission 
+winsBySub <- fights %>% filter(result=="Submission") %>% group_by(fight_winner) %>% summarize(subWins=n())
 
+allFighters$subWins <- winsBySub[match(allFighters$fighter, winsBySub$fight_winner),]$subWins
+
+allFighters$subWinPct <- (allFighters$subWins/allFighters$wins)*100
 
 ggplot(data=allFighters, aes(x=subWinPct, y=avgWinTime))+geom_point()+geom_smooth(method="lm")
-
-
-
-
-
