@@ -24,3 +24,6 @@ uberData$date <- dmy(dateTimeSplit[,1])
 uberData$time <- hms(dateTimeSplit[,2])
 
 uberData <- uberData %>% select(date, time, base_name, Lat, Lon)
+
+
+
