@@ -17,4 +17,10 @@ bases <- data.frame(base_name=c('Unter', 'Hinter', 'Weiter', 'Schmecken', 'Danac
 
 uberData$base_name <- bases[match(uberData$Base, bases$base_code),]$base_name
 
-head(uberData) %>% str_split(`Date/Time`, " ")
+dateTimeSplit <- str_split_fixed(uberData$`Date/Time`, " ", n=2)
+
+uberData$date <- dmy(dateTimeSplit[,1])
+
+uberData$time <- hms(dateTimeSplit[,2])
+
+uberData <- uberData %>% select(date, time, base_name, Lat, Lon)
