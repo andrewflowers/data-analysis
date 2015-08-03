@@ -6,6 +6,8 @@ This is for private data analysis projects.
 
 Folder | Description
 ---|---------
+`tlc-foil-data` | Uber data from Carl's FOIL request of the NYC TLC
+`super-PACs` | Super PACs data analysis with Aaron
 `youtube` | YouTube channels analysis with Walt
 `baltimore-arrests` | Baltimore Police Department arrests and crime data analysis with Reuben
 `inequality` | Inequality jumbo analysis with Ben C. and Micah
