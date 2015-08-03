@@ -20,4 +20,4 @@ dist <- bycoffe2015 %>% group_by(supports) %>%
             ratio=from_top5/from_bottom5) %>% 
   arrange(desc(ratio))
 
-ggplot(data=dist, aes(ratio))+geom_bar()
+
