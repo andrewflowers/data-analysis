@@ -12,7 +12,9 @@ require(stringr)
 require(lubridate)
 require(RgoogleMaps)
 require(ggmap)
+require(DBI)
 require(RSQLite)
+require(sqldf)
 
 ##############################
 ## Load and clean Uber data ##
@@ -75,18 +77,32 @@ nycMap2
 ## Yellow and Green Cab Trip Record Data ##
 ###########################################
 
+## To download directly from TLC website: http://www.nyc.gov/html/tlc/html/about/statistics.shtml
 # apr2014yel <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/yellow_tripdata_2014-04.csv")
 # may2014yel <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/yellow_tripdata_2014-05.csv")
 # jun2014yel <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/yellow_tripdata_2014-06.csv")
 # jul2014yel <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/yellow_tripdata_2014-07.csv")
 # aug2014yel <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/yellow_tripdata_2014-08.csv")
 # sep2014yel <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/yellow_tripdata_2014-09.csv")
-# 
 # apr2014gre <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/green_tripdata_2014-04.csv")
 # may2014gre <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/green_tripdata_2014-05.csv")
 # jun2014gre <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/green_tripdata_2014-06.csv")
 # jul2014gre <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/green_tripdata_2014-07.csv")
 # aug2014gre <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/green_tripdata_2014-08.csv")
 # sep2014gre <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/green_tripdata_2014-09.csv")
+
+apr2014 <- read_csv("yellow_tripdata_2014-04.csv")
+
+taxidb <- dbConnect(RSQLite::SQLite(), dbname="taxidb.sqlite")
+
+dbWriteTable(conn=taxidb, name="april", value="apr2014", row.names=FALSE, header=TRUE)
+
+
+
+
+
+
+
+
 
 
