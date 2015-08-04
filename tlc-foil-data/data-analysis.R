@@ -12,6 +12,11 @@ require(stringr)
 require(lubridate)
 require(RgoogleMaps)
 require(ggmap)
+require(RSQLite)
+
+##############################
+## Load and clean Uber data ##
+##############################
 
 uberData <- read_csv("uber-raw-data.csv")
 
@@ -35,7 +40,7 @@ ggplot(data=byDay, aes(x=date, y=total_rides))+geom_line()+
   ggtitle("Uber Pickups in NYC \n Apr. 1 to Sep. 30, 2014")+
   xlab("Day of Pickup")+ylab("Uber Pickups")
 
-# Privacy test
+# Privacy test(s) of Uber data
 officeRides <- uberData %>% filter(Lat==40.77395, Lon==-73.98060)
 officeRides <- uberData %>% filter(Lat==40.7, Lon==-73.9)
 
@@ -47,7 +52,10 @@ uberData$total_geo_digits <- uberData$Lat_digits + uberData$Lon_digits
 table(uberData$total_geo_digits)
 summary(uberData$Lon_digits)
 
-######### Begin mapping data
+###################
+## Map Uber data ##
+###################
+
 map <- get_map(location=c(lon=mean(uberData$Lon), lat=mean(uberData$Lat)), zoom=12, scale=2,
                maptype="roadmap")
 
@@ -59,7 +67,26 @@ map <- get_map(location=c(lon=mean(uberData$Lon), lat=mean(uberData$Lat)), zoom=
 nycMap2 <- ggmap(map, legend="topleft")+
   stat_density2d(data=uberData, 
                  aes(x=Lon, y=Lat, fill=..level.., alpha=..level..), 
-                 size=2, binds=4, geom="polygon")
+                 size=3, binds=6, geom="polygon")
 
 nycMap2
+
+###########################################
+## Yellow and Green Cab Trip Record Data ##
+###########################################
+
+# apr2014yel <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/yellow_tripdata_2014-04.csv")
+# may2014yel <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/yellow_tripdata_2014-05.csv")
+# jun2014yel <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/yellow_tripdata_2014-06.csv")
+# jul2014yel <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/yellow_tripdata_2014-07.csv")
+# aug2014yel <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/yellow_tripdata_2014-08.csv")
+# sep2014yel <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/yellow_tripdata_2014-09.csv")
+# 
+# apr2014gre <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/green_tripdata_2014-04.csv")
+# may2014gre <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/green_tripdata_2014-05.csv")
+# jun2014gre <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/green_tripdata_2014-06.csv")
+# jul2014gre <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/green_tripdata_2014-07.csv")
+# aug2014gre <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/green_tripdata_2014-08.csv")
+# sep2014gre <- read_csv("https://storage.googleapis.com/tlc-trip-data/2014/green_tripdata_2014-09.csv")
+
 
