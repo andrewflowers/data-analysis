@@ -39,21 +39,27 @@ ggplot(data=byDay, aes(x=date, y=total_rides))+geom_line()+
 officeRides <- uberData %>% filter(Lat==40.77395, Lon==-73.98060)
 officeRides <- uberData %>% filter(Lat==40.7, Lon==-73.9)
 
+# Calc digits of Lat/Lon
+uberData$Lat_digits <- nchar(uberData$Lat)
+uberData$Lon_digits <- nchar(uberData$Lon)
+uberData$total_geo_digits <- uberData$Lat_digits + uberData$Lon_digits
+
+table(uberData$total_geo_digits)
+summary(uberData$Lon_digits)
+
 ######### Begin mapping data
-uberData_small <- uberData[1:1000,]
 map <- get_map(location=c(lon=mean(uberData$Lon), lat=mean(uberData$Lat)), zoom=12, scale=2,
                maptype="roadmap")
 
-nycMap <- ggmap(map)+geom_point(data=uberData, aes(x=Lon, y=Lat, fill="red", alpha=0.8), size=2, shape=21)+
-  guides(fill=FALSE, alpha=FALSE, size=FALSE)
+# nycMap <- ggmap(map)+geom_point(data=uberData, aes(x=Lon, y=Lat, fill="red", alpha=0.8), size=2, shape=21)+
+#   guides(fill=FALSE, alpha=FALSE, size=FALSE)
+# 
+# nycMap
 
-nycMap
+nycMap2 <- ggmap(map, legend="topleft")+
+  stat_density2d(data=uberData, 
+                 aes(x=Lon, y=Lat, fill=..level.., alpha=..level..), 
+                 size=2, binds=4, geom="polygon")
 
-ggsave(nycMap, "nyc_uber_map.png")
-
-geocode("new york city")
-
-
-
-
+nycMap2
 
